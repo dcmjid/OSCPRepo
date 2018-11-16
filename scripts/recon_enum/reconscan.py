@@ -88,8 +88,8 @@ init()
 
 #PRIVATE VARS
 userAgent = "'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1'" #This will replace the default nmap http agent string
-FAST_NMAP_MIN_RATE = "10000"
-SLOW_NMAP_MIN_RATE = "1000"
+FAST_NMAP_MIN_RATE = "1000"
+SLOW_NMAP_MIN_RATE = "100"
 
 def multProc(targetin, scanip, port):
     jobs = []
@@ -159,7 +159,7 @@ def mssqlEnum(ip_address, port):
 
 def ldapEnum(ip_address, port):
     print "INFO: Enumerating LDAP on %s:%s" % (ip_address, port)
-    subprocess.check_output(['./ldaprecon.py',ip_address,port])
+    subprocess.check_output(['./ldaprecon.py',ip_address,'--port',port])
     return
 
 def mysqlEnum(ip_address, port):
@@ -174,7 +174,7 @@ def nfsEnum(ip_address, port):
     subprocess.check_output(['./nfsrecon.py',ip_address,port])
     return
 
-def msrpc(ip_address, port):
+def msrpcEnum(ip_address, port):
     print "INFO: Enumerating MSRPC on %s:%s" % (ip_address, port)
     #Impacket RPC packages
     subprocess.check_output(['./msrpcrecon.py',ip_address,port])
@@ -356,8 +356,8 @@ def nmapFullFastScan(ip_address):
 
 def nmapVersionTCPAndPass(ip_address, port):
    #need this to version ports and in case there is no recon module we'll have a scan for it. Runs default scripts.
-   uniNmapTCP = "nmap -n -vv -Pn -A -sC -sT -T 4 -p %s -oA '/root/scripts/recon_enum/results/exam/nmap/%s_%s' %s"  % (port, ip_address, port, ip_address)
-   lines = subprocess.check_output(['nmap','-n','-vv','-Pn','-A','-sC','-sT','-T','4','-p',port,'-oA',"/root/scripts/recon_enum/results/exam/nmap/%s_%s" % (ip_address,port),ip_address]).split("\n")
+   uniNmapTCP = "nmap -n -vv -Pn -A -sC -sV -sT -T 4 -p %s -oA '/root/scripts/recon_enum/results/exam/nmap/%s_%s' %s"  % (port, ip_address, port, ip_address)
+   lines = subprocess.check_output(['nmap','-n','-vv','-Pn','-A','-sC','-sV','-sT','-T','4','-p',port,'-oA',"/root/scripts/recon_enum/results/exam/nmap/%s_%s" % (ip_address,port),ip_address]).split("\n")
    print "INFO: nmap version and pass for TCP %s:%s completed" % (ip_address, port)
    for line in lines:
       line = line.strip()
@@ -386,6 +386,8 @@ def nmapVersionTCPAndPass(ip_address, port):
             multProc(smbEnum, ip_address,port)
          elif ("microsoft-ds" in service):
             multProc(smbEnum, ip_address, port)
+         elif ("msrpc" in service):
+            multProc(msrpcEnum, ip_address, port)
          elif ("ms-sql" in service or "mssql" in service):
             multProc(mssqlEnum, ip_address, port)
          elif ("my-sql" in service or "mysql" in service):
@@ -408,8 +410,8 @@ def nmapVersionTCPAndPass(ip_address, port):
             multProc(tftpEnum, ip_address, port)
 
 def nmapVersionUDPAndPass(ip_address, port):
-   uniNmapUDP = "nmap -n -vv -Pn -A -sC -sU -T 4 -p %s -oA '/root/scripts/recon_enum/results/exam/nmap/%s_%sU.nmap' %s"  % (port, ip_address, port, ip_address)
-   lines = subprocess.check_output(['nmap','-n','-vv','-Pn','-A','-sC','-sU','-T','4','-p',port,'-oA',"/root/scripts/recon_enum/results/exam/nmap/%s_%sU" % (ip_address,port),ip_address]).split("\n")
+   uniNmapUDP = "nmap -n -vv -Pn -A -sC -sV -sU -T 4 -p %s -oA '/root/scripts/recon_enum/results/exam/nmap/%s_%sU.nmap' %s"  % (port, ip_address, port, ip_address)
+   lines = subprocess.check_output(['nmap','-n','-vv','-Pn','-A','-sC','-sV','-sU','-T','4','-p',port,'-oA',"/root/scripts/recon_enum/results/exam/nmap/%s_%sU" % (ip_address,port),ip_address]).split("\n")
    print "INFO: nmap version and pass for UDP %s:%s completed" % (ip_address, port)
    for line in lines:
       line = line.strip()
@@ -424,6 +426,8 @@ def nmapVersionUDPAndPass(ip_address, port):
             multProc(dnsEnum, ip_address, port)
          elif ("snmp" in service):
             multProc(snmpEnum, ip_address, port)
+         elif ("tftp" in service):
+            multProc(tftpEnum, ip_address, port)
 
 #makedir function from https://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python
 #Compatible with Python >2.5, but there is a more advanced function for python 3.5

@@ -13,6 +13,7 @@
 <br/>
 VNC Stored:<br/>
 reg query "HKCU\Software\ORL\WinVNC3\Password"<br/>
+reg query HKEY_LOCAL_MACHINE\SOFTWARE\RealVNC\WinVNC4 /v password<br/>
 <br/>
 Windows Autologin: <br/>
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon"<br/>
@@ -21,7 +22,7 @@ SNMP Parameters:<br/>
 reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP"<br/>
 <br/>
 Putty clear text proxy credentials:<br/>
-reg query" HKCU\Software\SimonTatham\PuTTY\Sessions"<br/>
+reg query HKCU\Software\SimonTatham\PuTTY\Sessions<br/>
 <br/>
 <br/>
 PowerShell: Get-ItemProperty &lt;registry_key&gt;<br/>
